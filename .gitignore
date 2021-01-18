@@ -123,3 +123,24 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# eclipse specific git ignore
+*.pydevproject
+.project
+.metadata
+bin/**
+tmp/**
+tmp/**/*
+*.tmp
+*.bak
+*.swp
+*~.nib
+local.properties
+.classpath
+.settings/
+.loadpath
+
+
+# Picassa files
+*.picasa.ini
+.picasaoriginals/
