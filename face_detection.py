@@ -31,37 +31,45 @@ class FaceDetection:
     
     def scan(self, images):
         
+		# count stores number of images scanned
+		self.count = 0
+		
+		# id stores Face_id
+		self.id = 0
+		
         for img in self.images:
             
             # Image load in imgTest
             self.imgTest = face_recognition.load_image_file(img)
             
             # Image faceLocation stored in faceLoc
+			# face_location returns A list of tuples of found face locations in css (top, right, bottom, left) order
             self.faceLoc = face_recognition.face_locations(self.imgTest)
+			
+			# count increment after successfully image scan
+			self.count += 1
             
             # if face not found faceLoc will be empty
             # len(faceLoc) == 0 that means face not found
             if len(self.faceLoc) == 0:
                 continue
             
-            # face found in given image
+            # else
+			# face found in given image
             
-            # 128 face metrics stored in encodeImg
+            # face_encodings returns A list of 128-dimensional face encodings (one for each face in the image)
             self.encodeImg = face_recognition.face_encodings(self.faceLoc)
             
-            # Date and Time loaded for giving unique id
-            self.now = datetime.now()
-            dt_string = self.now.strftime("%d/%m/%Y_%H:%M:%S")
-            
-            # face_id = index of image in image list + current date and time
-            Face.face_id = f'{images.index(img)}_{dt_string}'
+            for i in len(self.faceLoc):
+				# face_id = id
+				Face.face_id = self.id
+				self.id += 1
+				
+				# signature = 128-dimension face encoding for each face in the image
+				Face.signature = self.encodeImg[i]
             
             # image_id = name of image file + current date and time
-            Face.image_id = f'{os.path.splitext(img)[0]}_{dt_string}'
-            
-            # signature = 128 metrics of face found in image file
-            Face.signature = self.encodeImg
-            
+            Face.image_id = f'{os.path.splitext(img)[0]}'        
             
             
         
