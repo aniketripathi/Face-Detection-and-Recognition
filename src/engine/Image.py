@@ -3,7 +3,7 @@ Created on 18-Jan-2021
 
 @author: Aniket Kumar Tripathi
 '''
-from cv2 import imread
+from face_recognition.api import load_image_file
 
 
 # Image class encapsulates an image supported by lazy loading. The image is loaded using opencv.imread()
@@ -17,7 +17,7 @@ class Image:
     def __init__(self, img_id, location, load=False, scanned=False, faces=None):
         self.id = img_id
         self.location = location
-        self.__imgdata__ = imread(location) if load else None
+        self.__imgdata__ = load_image_file(location) if load else None
         self.loaded = load
         self.scanned = scanned
         self.faces = faces if scanned else None
@@ -27,7 +27,7 @@ class Image:
         
         if(not self.loaded):
             # Load image from location if not loaded
-            self.__imgdata__ = imread(self.location)
+            self.__imgdata__ = load_image_file(self.location)
             self.loaded = True
             
         return self.__imgdata__

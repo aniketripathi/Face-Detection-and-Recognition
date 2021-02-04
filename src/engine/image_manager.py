@@ -6,10 +6,10 @@ Created on 18-Jan-2021
 import Image
 import os
 import collections
-from cv2 import haveImageReader
+import imghdr
 
 # A variable used to generate unique image id
-__imid__ = 0;
+__imid__ = -1
 
 
 # Function to generate unique image id
@@ -31,7 +31,7 @@ def load(dirs, load=False):
         for path in dirs:
             for subpath in os.listdir(path):
                 file = ''.join([path, subpath])
-                if(os.path.isfile(file) and haveImageReader(file)):
+                if(os.path.isfile(file) and imghdr.what(file)):
                     image = Image(__gen_imageid__(), file, load)
                     images.append(image)
     return images
