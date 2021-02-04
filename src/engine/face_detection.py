@@ -29,6 +29,8 @@ def scan(images):
         # len(faceLoc) == 0 that means face not found
         # else face found in given image
         if len(faceLoc) == 0:
+            img.faces = []
+            img.scanned = True
             continue
 
         # face_encodings returns A list of 128-dimensional face encodings
@@ -38,5 +40,6 @@ def scan(images):
         faces = [Face(i, img.id, faceLoc[i], encodeImg[i]) for i in range(len(faceLoc))]
 
         img.faces = faces
+        img.scanned = True
 
     return count
