@@ -144,3 +144,8 @@ local.properties
 # Picassa files
 *.picasa.ini
 .picasaoriginals/
+
+# Visual Studio Files
+*.pyproj
+.vs/
+
