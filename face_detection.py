@@ -13,20 +13,6 @@ from datetime import datetime
 import Face
 import Image
 
-'''
-class Face: 
-
-    def __init__(self, face_id, image_id, signature, recognized=False):
-        self.id = face_id
-        self.image = image_id
-        self.signature = signature
-        self.recognized = recognized
-        
-        # Input - images - A list of images of type Image
-        # Scans all the Images present in images list for faces and adds faces to image.face
-        # Returns - Number of images scanned successfully
-'''
-
 class FaceDetection:
     
     def scan(self, images):
