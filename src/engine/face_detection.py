@@ -11,7 +11,7 @@ from .Face import Face
 
 
 
-def scan(images):
+def scan(images, unload=False):
 
     # Number of images
     count = 0
@@ -41,5 +41,9 @@ def scan(images):
 
         img.faces = faces
         img.scanned = True
+        
+        # Use this if there are too many images to scan
+        if(unload):
+            img.__unload__()
 
     return count
