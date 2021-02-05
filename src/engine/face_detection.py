@@ -22,7 +22,7 @@ def scan(images):
         # face_location returns A list of tuples of found face locations in css
         # (top, right, bottom, left) order
         # count increment after successfully image scan
-        faceLoc = face.recognition.face_locations(img.imgdata())
+        faceLoc = face_recognition.face_locations(img.imgdata())
         count += 1
         
         # if face not found faceLoc will be empty
@@ -35,7 +35,7 @@ def scan(images):
 
         # face_encodings returns A list of 128-dimensional face encodings
         # (one for each face in the image)
-        encodeImg = face_recognition.face_encodings(faceLoc)
+        encodeImg = face_recognition.face_encodings(img.imgdata(),known_face_locations=faceLoc)
 
         faces = [Face(i, img.id, faceLoc[i], encodeImg[i]) for i in range(len(faceLoc))]
 

@@ -3,7 +3,7 @@ Created on 18-Jan-2021
 
 @author: Aniket Kumar Tripathi
 '''
-import Image
+from .Image import Image
 import os
 import collections
 import imghdr
@@ -14,6 +14,7 @@ __imid__ = -1
 
 # Function to generate unique image id
 def __gen_imageid__():
+    global __imid__
     __imid__ += 1
     return __imid__
 
