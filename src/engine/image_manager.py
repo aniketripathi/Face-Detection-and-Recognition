@@ -3,7 +3,7 @@ Created on 18-Jan-2021
 
 @author: Aniket Kumar Tripathi
 '''
-from .Image import Image
+from .base import Image
 import os
 import collections
 import imghdr
@@ -20,14 +20,16 @@ def __gen_imageid__():
 
 
 # Load images from given directory or set of directories.
-# dirs = A single directory (str) or a set of directories(a sequence of strings)
-# load = If false image data is not loaded (by Default) and will be loaded when used. 
+# dirs = A single directory (str) or a set of directories(a sequence of
+# strings)
+# load = If false image data is not loaded (by Default) and will be loaded when
+# used.
 # Returns - A list of images of type Image
 def load(dirs, load=False):
     images = []
     if(isinstance(dirs, str)):
         dirs = [dirs]
-        
+
     if(isinstance(dirs, collections.Sequence)):
         for path in dirs:
             for subpath in os.listdir(path):

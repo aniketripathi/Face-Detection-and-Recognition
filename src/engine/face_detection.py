@@ -7,7 +7,7 @@ Created on Tue Feb  2 23:23:54 2021
 
 import face_recognition
 import os
-from .Face import Face
+from .base import Face
 
 
 
@@ -24,7 +24,7 @@ def scan(images, unload=False):
         # count increment after successfully image scan
         faceLoc = face_recognition.face_locations(img.imgdata())
         count += 1
-        
+
         # if face not found faceLoc will be empty
         # len(faceLoc) == 0 that means face not found
         # else face found in given image
@@ -41,7 +41,7 @@ def scan(images, unload=False):
 
         img.faces = faces
         img.scanned = True
-        
+
         # Use this if there are too many images to scan
         if(unload):
             img.__unload__()
