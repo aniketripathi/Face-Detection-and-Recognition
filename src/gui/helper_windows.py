@@ -1,8 +1,9 @@
 '''
-Created on 06-April-2021
+Created on 08-April-2021
 
 @author: Aniket Kumar Tripathi
 '''
+
 import tkinter as tk
 from tkinter import filedialog as fd
 from PIL import Image, ImageTk
@@ -55,11 +56,11 @@ class Albums_Dialog:
 
         # Ok button
         self.ok_button = tk.Button(self.buttons_frame, text='OK', command=lambda:self.__ok__())
-        self.ok_button.grid(row=1, column=0, sticky='e')
+        self.ok_button.grid(row=1, column=0, sticky='w')
 
         # Cancel button
         self.cancel_button = tk.Button(self.buttons_frame, text='Cancel', command=lambda:self.__cancel__())
-        self.cancel_button.grid(row=1, column=1, sticky='e')
+        self.cancel_button.grid(row=1, column=2, sticky='e')
 
         # Add action to buttons
         self.loadfile_button.command = tk
@@ -68,6 +69,7 @@ class Albums_Dialog:
         self.top.grab_release()
         self.top.destroy()
         self.closed = True
+
 
     def __cancel__(self):
         self.top.grab_release()
