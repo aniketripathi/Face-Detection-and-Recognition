@@ -10,11 +10,13 @@ import os
 from .base import Face
 
 
+__count__ = 0
 
 def scan(images, unload=False):
 
     # Number of images
-    count = 0
+    global __count__
+    __count__ = 0
 
     for img in images:
 
@@ -23,7 +25,7 @@ def scan(images, unload=False):
         # (top, right, bottom, left) order
         # count increment after successfully image scan
         faceLoc = face_recognition.face_locations(img.imgdata())
-        count += 1
+        __count__ += 1
 
         # if face not found faceLoc will be empty
         # len(faceLoc) == 0 that means face not found
@@ -46,4 +48,4 @@ def scan(images, unload=False):
         if(unload):
             img.__unload__()
 
-    return count
+    return __count__

@@ -4,8 +4,9 @@ Created on 08-April-2021
 @author: Aniket Kumar Tripathi
 '''
 
-from face_recognition import compare_faces
+from face_recognition import face_distance
 from face_recognition import load_image_file
+from PIL import Image as pImage
 
 class Album:
     def __init__(self, id, name, face):
@@ -14,13 +15,18 @@ class Album:
         self.face = face
         self.matching_faces = None
 
-    def scan(faces, threshold=0.6):
+    # Scan a list of images.  For any image if a face matches with the face of
+    # this album then
+    # that face is saved in matching faces.  1 album is alowed to match only 1
+    # face in each image.
+    def scan(self, images, threshold=0.6):
         self.matching_faces = []
-
-        for face in faces:
-            match = compare_faces(face.signature, self.face.signature,tolerance=threshold)
-            if(match):
-                self.matching_faces.append(face.id)
+        for img in images:
+           for face in img.faces:
+                match = face_distance([face.signature], self.face.signature) <= threshold
+                if(match[0]):
+                    self.matching_faces.append(face)
+                    break
 
 
 class Face:
@@ -75,3 +81,7 @@ class Image:
     def __unload__(self):
         self.__imgdata__ = None
         self.loaded = False
+
+    # Returns PIL image of __imgdata__
+    def getPILimage(self):
+        return pImage.fromarray(self.imgdata().astype('uint8'), 'RGB')
