@@ -39,7 +39,9 @@ class Thumbnail:
        self.frame.grid_columnconfigure(0, weight=1)
        self.thumb = ImageTk.PhotoImage(self.thumb)
        self.label = tk.Label(self.frame, image = self.thumb)
-       self.label.bind("<Button-1>", lambda event : leftmouse_action(id=self.id))
-       self.label.bind("<Button-2>", lambda event : rightmouse_action(id=self.id))
+       if leftmouse_action :
+           self.label.bind("<Button-1>", lambda event : leftmouse_action(id=self.id))
+       if rightmouse_action :
+           self.label.bind("<Button-2>", lambda event : rightmouse_action(id=self.id))
        self.label.grid(row = 0, column = 0, sticky = 'nsew')
        self.frame.grid(padx=5, pady=5)
