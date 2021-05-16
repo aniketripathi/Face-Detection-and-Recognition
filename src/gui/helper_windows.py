@@ -5,7 +5,9 @@ Created on 08-April-2021
 '''
 
 import tkinter as tk
+from tkinter.ttk import Progressbar
 from tkinter import filedialog as fd
+
 from PIL import Image, ImageTk
 
 class Albums_Dialog:
@@ -92,3 +94,46 @@ class Albums_Dialog:
         if(self.file_name):
             self.loaded_image = ImageTk.PhotoImage(Image.open(self.file_name).resize((self.image_height,self.image_width)))
             self.image_label.config(image=self.loaded_image)
+
+class Loading_Bar:
+
+    text = 'Loading ...'
+    value = 0
+
+    def __init__(self,parent,title, max):
+        self.parent = parent
+        self.root = tk.Toplevel(parent)
+        self.root.lift(aboveThis=parent)
+        self.root.grab_set()
+        self.root.title(title)
+        self.root.geometry('512x64')
+        self.root.grid_rowconfigure(0, weight=1)
+        self.root.grid_columnconfigure(0, weight=1)
+        self.root.update_idletasks()
+
+        frame = tk.Frame(self.root, padx=3, pady=3, relief = tk.RIDGE)
+        frame.grid(row=0, column=0, sticky='nsew')
+        frame.grid_columnconfigure(0, weight=1)
+
+        self.text_label = tk.Label(frame, text=self.text, anchor='n')
+        self.text_label.grid(row=0,column=0, sticky='ew')
+
+        self.progressbar = Progressbar(frame, mode='determinate', orient=tk.HORIZONTAL, maximum=max)
+        self.progressbar.grid(row=1, column=0, sticky ='ew')
+        self.max = max
+
+    def start(self, update_function):
+        self.update_function = update_function
+        self.value = 0
+        self.update()
+
+    def update(self):
+        self.update_function()
+        if self.value < self.max :
+          self.progressbar["value"] = self.value
+          self.root.after(100, self.update)
+          self.text_label.config(text=self.text)
+        else:
+            self.root.grab_release()
+            self.root.destroy()
+

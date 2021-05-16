@@ -8,10 +8,12 @@ import tkinter as tk
 from tkinter.ttk import Progressbar as pb
 from PIL import Image as pImage, ImageTk
 from os import path as path
+from threading import Thread
 
 from .helper_widgets import ScrollableFrame
 from .helper_widgets import Thumbnail
 from .helper_windows import Albums_Dialog
+from .helper_windows import Loading_Bar
 from src.engine.base import Image
 import src.engine.face_detection as fd
 from src.engine.base import Album
@@ -85,10 +87,9 @@ class Application:
 
 
     def album_leftmouse(self, id):
-        print(id)
-        print("left mouse clicked")
-        self.album_pane.members[id].frame.focus_set()
-        self.albumimages_panes[id].tkraise()
+        if self.albumimages_panes :
+          #self.album_pane.members[id].frame.focus_set()
+          self.albumimages_panes[id].tkraise()
 
     def album_rightmouse(self, id):
         None
@@ -98,7 +99,15 @@ class Application:
         folder = tk.filedialog.askdirectory() + "/"
         self.images = image_manager.load(folder)
         print(folder, ' ', len(self.images))
-        fd.scan(self.images)
+
+
+        loading_bar = Loading_Bar(self.root, "Loading Albums", len(self.images),)
+        albumthread = Thread(target = lambda : fd.scan(self.images))
+        def update_var():
+            loading_bar.value = fd.__count__
+        albumthread.start()
+        loading_bar.start(update_var)
+        parent.wait_window(loading_bar.root)
 
         for album in self.albums:
             album.scan(self.images)
@@ -109,11 +118,10 @@ class Application:
             self.albumimages_panes.append(sf)
 
             i = 0
-            print(' faces in album ', album.id, ' = ', len(album.matching_faces))
             for mface in album.matching_faces:
                 mimage = self.images[mface.image]
                 thumb = Thumbnail(id=mimage.id,container=self.albumimages_panes[album.id].sframe,image=mimage.getPILimage())
-                thumb.frame.grid(row = i // 3, column = i % 3)
+                thumb.frame.grid(row = i // 5, column = i % 5)
                 sf.members.append(thumb)
                 i += 1
         print('scanning finished ... \n')
@@ -124,8 +132,9 @@ class Application:
         if(ad.closed):
             file = ad.file_name
             if(file):
+                i = 0
                 img = Image(0, file)
-                fd.scan([img],unload=True)
+                fd.scan([img],unload = True)
                 self.album_images.append(img)
                 i = 0
                 for face in img.faces :
