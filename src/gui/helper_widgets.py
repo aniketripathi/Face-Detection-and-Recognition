@@ -29,15 +29,12 @@ class Thumbnail:
 
    def __init__(self,id, container, image, leftmouse_action=None, rightmouse_action=None):
        self.id = id
-       self.image = image
-       self.thumb = image.resize([128,128])
-
        self.frame = tk.Frame(container, bg='black', highlightthickness=1, padx=3, pady=3, takefocus=1)
        self.frame.bind("<Enter>", lambda event, f=self.frame: f.configure(bg='red'))
        self.frame.bind("<Leave>", lambda event, f=self.frame: f.configure(bg='black'))
        self.frame.grid_rowconfigure(0, weight = 1)
        self.frame.grid_columnconfigure(0, weight=1)
-       self.thumb = ImageTk.PhotoImage(self.thumb)
+       self.thumb = ImageTk.PhotoImage(image.resize([128,128]))
        self.label = tk.Label(self.frame, image = self.thumb)
        if leftmouse_action :
            self.label.bind("<Button-1>", lambda event : leftmouse_action(id=self.id))

@@ -13,21 +13,18 @@ class Album:
         self.id = id
         self.name = name
         self.face = face
-        self.matching_faces = None
+        self.matching_faces = []
 
     # Scan a list of images.  For any image if a face matches with the face of
-    # this album then
-    # that face is saved in matching faces.  1 album is alowed to match only 1
-    # face in each image.
+    # this album then that face is saved in matching faces.  1 album is alowed
+    # to match only 1 face in each image.
     def scan(self, images, threshold=0.6):
-        self.matching_faces = []
         for img in images:
            for face in img.faces:
                 match = face_distance([face.signature], self.face.signature) <= threshold
                 if(match[0]):
                     self.matching_faces.append(face)
                     break
-
 
 class Face:
 
@@ -42,21 +39,16 @@ class Face:
 
 class Image:
     # Image class encapsulates an image supported by lazy loading.  The image
-    # is
-    # loaded using opencv.imread()
+    # is loaded using opencv.imread()
     # img_id : Unique image id.
     # location : location of the image.  This class is not responsible to
-    # verify
-    # valid locations.
+    # verify valid locations.
     # load : If True the image is instantly loaded otherwise it is loaded when
-    # the
-    # image is accessed.
+    # the image is accessed.
     # scanned : True or False.  Whether the image is scanned for face
-    # detection.
-    # False by default.
+    # detection.  False by default.
     # faces : List of faces detected in this image.  Only to be used if scanned
-    # =
-    # True.  None by default.
+    # = True.  None by default.
 
 
     def __init__(self, img_id, location, load=False, scanned=False, faces=None):
@@ -83,5 +75,7 @@ class Image:
         self.loaded = False
 
     # Returns PIL image of __imgdata__
-    def getPILimage(self):
-        return pImage.fromarray(self.imgdata().astype('uint8'), 'RGB')
+    def getPILimage(self, unload=True):
+        img = pImage.fromarray(self.imgdata().astype('uint8'), 'RGB')
+        self.__unload__()
+        return img

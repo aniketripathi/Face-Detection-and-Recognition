@@ -38,3 +38,7 @@ def load(dirs, load=False):
                     image = Image(__gen_imageid__(), file, load)
                     images.append(image)
     return images
+
+def __reset_id__():
+    global __imid__
+    __imid__ = -1
