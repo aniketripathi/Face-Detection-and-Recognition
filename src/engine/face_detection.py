@@ -11,6 +11,7 @@ from .base import Face
 
 
 __count__ = 0
+__current_image__ = None
 
 def scan(images, unload=False):
 
@@ -18,8 +19,11 @@ def scan(images, unload=False):
     global __count__
     __count__ = 0
 
+    global __current_image__
+
     for img in images:
 
+        __current_image__ = img
         # Image faceLocation stored in faceLoc
         # face_location returns A list of tuples of found face locations in css
         # (top, right, bottom, left) order

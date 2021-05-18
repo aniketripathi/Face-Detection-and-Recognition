@@ -124,16 +124,18 @@ class Loading_Bar:
 
     def start(self, update_function):
         self.update_function = update_function
+        self.completed = False
         self.value = 0
         self.update()
 
     def update(self):
         self.update_function()
-        if self.value < self.max :
-          self.progressbar["value"] = self.value
-          self.root.after(100, self.update)
-          self.text_label.config(text=self.text)
-        else:
+        if not self.completed :
+            if self.value >= self.max :
+                self.completed = True
+            self.progressbar["value"] = self.value
+            self.root.after(100, self.update)
+            self.text_label.config(text=self.text)
+        else :
             self.root.grab_release()
             self.root.destroy()
-

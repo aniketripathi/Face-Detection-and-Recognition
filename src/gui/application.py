@@ -34,8 +34,7 @@ class Application:
 
     # Holds all images to be scanned (except th e image from which album was
     # created
-    images = None
-
+    images = []
     __albumcount__ = 0
 
     def __init__(self):
@@ -54,13 +53,13 @@ class Application:
         self.base.grid_rowconfigure(1, weight=1)
 
         # self.toolbar container
-        self.toolbar = tk.Frame(self.base, padx=10, pady=5, relief=tk.GROOVE, bd=5, height=50)
+        self.toolbar = tk.Frame(self.base, pady=5, relief=tk.GROOVE, bd=5, height=50)
         self.toolbar.grid(row=0, column=0, sticky='nsew')
         self.add_album_button = tk.Button(self.toolbar, text='Add albums', command=lambda:self.scan_albumimage(self.root))
-        self.add_album_button.grid(row=0, column=0)
+        self.add_album_button.grid(row=0, column=0, padx=5)
 
-        self.scan_button = tk.Button(self.toolbar, text='Scan', command=lambda: self.scan_directory(self.root))
-        self.scan_button.grid(row=0, column=1)
+        self.scan_button = tk.Button(self.toolbar, text='Scan', padx=5, command=lambda: self.scan_directory(self.root))
+        self.scan_button.grid(row=0, column=1, padx=5)
 
         # Main Pane - album pane and image pane
         self.main_pane = tk.Frame(self.base, bd=1)
@@ -88,29 +87,59 @@ class Application:
 
     def album_leftmouse(self, id):
         if self.albumimages_panes :
-          #self.album_pane.members[id].frame.focus_set()
           self.albumimages_panes[id].tkraise()
 
     def album_rightmouse(self, id):
         None
 
     def scan_directory(self, parent):
-        print('scanning ... \n')
         folder = tk.filedialog.askdirectory() + "/"
-        self.images = image_manager.load(folder)
-        print(folder, ' ', len(self.images))
+        unscanned_images = image_manager.load(folder)
+
+        class Scan_Progress:
+            def __init__(self):
+                self.album = None
+                self.album_scancount = 0
+                self.face_detection_complete = False
+                self.face_recognition_complete = False
+
+        sp = Scan_Progress()
+        self.images += unscanned_images
+
+        def process(scan_progress=sp):
+            fd.scan(unscanned_images)
+            scan_progress.face_detection_complete = True
+
+            for album in self.albums:
+                scan_progress.album = album
+                album.scan(unscanned_images)
+                scan_progress.album_scancount += 1
+            scan_progress.face_recognition_complete = True
+
+        loading_bar = Loading_Bar(self.root, "Loading Albums", len(unscanned_images) + len(self.albums))
+        albumthread = Thread(target = lambda : process())
+
+        def update_var(scan_progress=sp):
+            if not scan_progress.face_detection_complete :
+                loading_bar.value = fd.__count__
+                if fd.__current_image__ :
+                    loading_bar.text = 'Detecting Faces ... ' + self.images[fd.__current_image__.id].location
+
+            elif not scan_progress.face_recognition_complete :
+                loading_bar.value = fd.__count__ + scan_progress.album_scancount
+                if scan_progress.album:
+                    loading_bar.text = 'Recognizing Faces for album ...' + scan_progress.album.id
+
+            else :
+                loading_bar.value = len(unscanned_images) + len(self.albums)
+                loading_bar.text = 'Complete'
 
 
-        loading_bar = Loading_Bar(self.root, "Loading Albums", len(self.images),)
-        albumthread = Thread(target = lambda : fd.scan(self.images))
-        def update_var():
-            loading_bar.value = fd.__count__
         albumthread.start()
         loading_bar.start(update_var)
         parent.wait_window(loading_bar.root)
 
         for album in self.albums:
-            album.scan(self.images)
             sf = ScrollableFrame(self.image_pane)
             sf.grid(row=0, column=0, sticky='nsew')
             sf.grid_rowconfigure(0, weight=1)
@@ -124,7 +153,6 @@ class Application:
                 thumb.frame.grid(row = i // 5, column = i % 5)
                 sf.members.append(thumb)
                 i += 1
-        print('scanning finished ... \n')
 
     def scan_albumimage(self,parent):
         ad = Albums_Dialog(parent)
@@ -132,22 +160,19 @@ class Application:
         if(ad.closed):
             file = ad.file_name
             if(file):
-                i = 0
                 img = Image(0, file)
                 fd.scan([img],unload = True)
                 self.album_images.append(img)
-                i = 0
                 for face in img.faces :
                     l = face.location
                     # (top,right,bottom,left) -> (left,top,right,bottom)
                     im = img.getPILimage().crop((l[3],l[0],l[1],l[2]))
                     album_thumb = Thumbnail(id=self.__albumcount__,container=self.album_pane.sframe,image=im,
                                            leftmouse_action=self.album_leftmouse, rightmouse_action=self.album_rightmouse)
-                    album_thumb.frame.grid(row=i, column=0)
+                    album_thumb.frame.grid(row=self.__albumcount__, column=0)
                     self.album_thumbnails.append(album_thumb)
                     album = Album(self.__albumcount__, None, face)
                     self.__albumcount__ += 1
                     self.albums.append(album)
                     self.album_pane.members.append(album_thumb)
                     self.root.update()
-                    i += 1
