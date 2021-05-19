@@ -10,7 +10,7 @@ from tkinter import filedialog as fd
 
 from PIL import Image, ImageTk
 
-class Albums_Dialog:
+class AlbumsDialog:
 
 	def __init__(self, parent):
 		self.top = tk.Toplevel(parent, takefocus=False)
@@ -97,7 +97,7 @@ class Albums_Dialog:
 								.resize((self.image_height,self.image_width)))
 			self.image_label.config(image=self.loaded_image)
 
-class Loading_Bar:
+class LoadingBar:
 
 	def __init__(self,parent,title, max_value):
 		self.parent = parent
@@ -122,6 +122,7 @@ class Loading_Bar:
 		self.progressbar = Progressbar(frame, mode='determinate', orient=tk.HORIZONTAL, maximum=max_value)
 		self.progressbar.grid(row=1, column=0, sticky ='ew')
 		self.max = max_value
+		self.progressbar["value"] = self.value
 		self.completed = False
 		self.update_function = None
 
@@ -129,6 +130,7 @@ class Loading_Bar:
 		self.update_function = update_function
 		self.completed = False
 		self.value = 0
+		self.progressbar["value"] = self.value
 		self.update()
 
 	def update(self):
@@ -145,26 +147,64 @@ class Loading_Bar:
 
 class ImageViewer:
 
-	def __init__(self, parent):
+	def __init__(self, parent, images, current_imageid=0):
 		self.root = tk.Toplevel(parent, takefocus=False)
 		self.root.grab_set()
-		self.root.geometry('520x620')
 		self.root.lift(aboveThis=parent)
 		self.root.title('Image Viewer')
+		self.root.state('zoomed')
 		self.root.grid_rowconfigure(0, weight=1)
 		self.root.grid_columnconfigure(0, weight=1)
 
 		self.frame = tk.Frame(self.root)
 		self.frame.grid(row=0, column=0, sticky='nsew')
 		self.frame.grid_columnconfigure(0, weight=1)
-		self.frame.grid_rowconfigure(9, weight=1)
+		self.frame.grid_rowconfigure(0, weight=1)
+		self.current = current_imageid
+		self.image = None
 
 		# Insert image here
+		self.canvas = tk.Canvas(self.frame, bd=3, relief=tk.RIDGE)
+		self.canvas.grid(row=0, column=0, sticky='nsew')
+		img = images[self.current]
+		self.addto_canvas(img)
 
 		self.toolbar = tk.Frame(self.frame, bd=3, relief=tk.GROOVE, height=50)
-		self.toolbar.grid(row=1, column=0, sticky='nsew')
+		self.toolbar.grid(row=1, column=0)
 		self.toolbar.grid_rowconfigure(0, weight=1)
-		self.next_button = tk.Button(self.toolbar, text='NEXT', anchor='n', command = None)
-		self.next_button.grid(row=0,column=0, padx=5, pady=2)
-		self.previous_buttoon = tk.Button(self.toolbar, text='PREVIOUS', anchor='n', command=None)
-		self.previous_buttoon.grid(row=0, column=1, padx=5, pady=2)
+		self.next_button = tk.Button(self.toolbar, text='NEXT', anchor='n',
+							  command=lambda : self.traverse_images(images,+1))
+		self.next_button.grid(row = 0,column = 1, padx=5, pady=2)
+		self.previous_buttoon = tk.Button(self.toolbar, text='PREVIOUS',
+								   command=lambda : self.traverse_images(images,-1))
+		self.previous_buttoon.grid(row=0, column=0, padx=5, pady=2)
+
+	def traverse_images(self, imgs, step):
+		if 0 <= self.current + step < len(imgs):
+			self.current = self.current + step
+			img = imgs[self.current]
+			self.canvas.delete('all')
+			self.addto_canvas(img)
+
+
+	def addto_canvas(self, img):
+		self.image = ImageTk.PhotoImage(img.get_PIL_image())
+		self.root.update()
+		cw = self.canvas.winfo_width()
+		ch = self.canvas.winfo_height()
+		iw = self.image.width()
+		ih = self.image.height()
+		self.canvas.create_image(cw / 2, ch / 2, image=self.image, anchor=tk.CENTER)
+		for face in img.faces:
+			if face.recognized:
+				self.create_labelled_rect(face,x=(cw - iw) / 2, y=(ch - ih) / 2)
+
+
+	def create_labelled_rect(self,face, x, y):
+		if face.recognized:
+			album = face.album
+			loc = face.location
+			# (top,right,bottom,left) - > (left, top, right+1, bottom+1)
+			self.canvas.create_rectangle(x + loc[3], y + loc[0], x + loc[1] + 1, y + loc[2] + 1, outline='lime', width=2)
+			self.canvas.create_text(x + (loc[3] + loc[1]) / 2, y + loc[2], text=album.name, anchor='n',
+						  font = ('Times', '20', 'bold'), fill='lime', state=tk.DISABLED)

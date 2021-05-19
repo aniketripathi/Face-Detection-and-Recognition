@@ -15,31 +15,28 @@ import src.engine.image_manager as image_manager
 from .helper_widgets import ScrollableFrame
 from .helper_widgets import Thumbnail
 from .helper_widgets import Album_Thumbnail
-from .helper_windows import Albums_Dialog
-from .helper_windows import Loading_Bar
-
+from .helper_windows import AlbumsDialog
+from .helper_windows import LoadingBar
+from .helper_windows import ImageViewer
 
 class Application:
-    albums = []
-
-    # Images from which albums were created
-    album_images = []
-
-    # Frame that holds the images corresponding to albums
-    albumimages_panes = []
-
-    # Holds Thumbnails for albums
-    album_thumbnails = []
-
-    # Holds all images to be scanned (except th e image from which album was
-    # created
-    images = []
-    __albumcount__ = 0
 
     def __init__(self):
+        self.albums = []
+        # Images from which albums were created
+        self.album_images = []
+        # Frame that holds the images corresponding to albums
+        self.albumimages_panes = []
+        # Holds Thumbnails for albums
+        self.album_thumbnails = []
+        # Holds all images to be scanned (except th e image from which album
+        # was
+        # created
+        self.images = []
+        self.__albumcount__ = 0
+
         self.root = tk.Tk()
         self.root.title("Face Recognition")
-        self.root.geometry('1024x768')
         self.root.grid_rowconfigure(0, weight=1)
         self.root.grid_columnconfigure(0, weight=1)
         self.root.state('zoomed')
@@ -98,14 +95,14 @@ class Application:
         folder = tk.filedialog.askdirectory() + "/"
         unscanned_images = image_manager.load(folder)
         if unscanned_images:
-            class Scan_Progress:
+            class ScanProgress:
                 def __init__(self):
                     self.album = None
                     self.album_scancount = 0
                     self.face_detection_complete = False
                     self.face_recognition_complete = False
 
-            sp = Scan_Progress()
+            sp = ScanProgress()
             self.images += unscanned_images
 
             def process(scan_progress=sp):
@@ -118,7 +115,7 @@ class Application:
                     scan_progress.album_scancount += 1
                 scan_progress.face_recognition_complete = True
 
-            loading_bar = Loading_Bar(self.root, "Loading Albums", len(unscanned_images) + len(self.albums))
+            loading_bar = LoadingBar(self.root, "Loading Albums", len(unscanned_images) + len(self.albums))
             albumthread = Thread(target = process)
 
             def update_var(scan_progress=sp):
@@ -140,31 +137,26 @@ class Application:
             albumthread.start()
             loading_bar.start(update_var)
             parent.wait_window(loading_bar.root)
-
+            fd.__reset_count__
             for album in self.albums:
-                sframe = ScrollableFrame(self.image_pane)
-                sframe.grid(row=0, column=0, sticky='nsew')
-                sframe.grid_rowconfigure(0, weight=1)
-                sframe.grid_columnconfigure(0, weight=1)
-                self.albumimages_panes.append(sframe)
-
                 i = 0
                 for mface in album.matching_faces:
                     mimage = self.images[mface.image]
-                    thumb = Thumbnail(id_=mimage.id_,container=self.albumimages_panes[album.id_].sframe,
-                                      image=mimage.getPILimage())
+                    thumb = Thumbnail(id_=mimage.id_,container=self.albumimages_panes[album.id_].sframe,image=mimage.get_PIL_image(),
+                                     leftmouse_action=lambda id_: ImageViewer(self.root,self.images,current_imageid=id_))
                     thumb.frame.grid(row = i // 5, column = i % 5)
-                    sframe.members.append(thumb)
+                    self.albumimages_panes[album.id_].members.append(thumb)
                     i += 1
 
     def scan_albumimage(self,parent):
-        adialog = Albums_Dialog(parent)
+        adialog = AlbumsDialog(parent)
         parent.wait_window(adialog.top)
         if(adialog.closed):
             file = adialog.file_name
             if(file):
                 img = Image(0, file)
                 fd.scan([img],unload = True)
+                fd.__reset_count__()
                 self.album_images.append(img)
                 for face in img.faces :
                     loc = face.location
@@ -174,6 +166,11 @@ class Application:
                     album_thumb = Album_Thumbnail(self.__albumcount__, album, self.album_pane.sframe, fimg,
                                            leftmouse_action=self.album_leftmouse, rightmouse_action=self.album_rightmouse)
                     album_thumb.frame.grid(row=self.__albumcount__, column=0)
+                    sframe = ScrollableFrame(self.image_pane)
+                    sframe.grid(row=0, column=0, sticky='nsew')
+                    sframe.grid_rowconfigure(0, weight=1)
+                    sframe.grid_columnconfigure(0, weight=1)
+                    self.albumimages_panes.append(sframe)
                     self.album_thumbnails.append(album_thumb)
                     self.__albumcount__ += 1
                     self.albums.append(album)
