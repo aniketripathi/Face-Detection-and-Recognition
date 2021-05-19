@@ -43,7 +43,7 @@ def scan(images, unload=False):
         # (one for each face in the image)
         encodeImg = face_recognition.face_encodings(img.imgdata(),known_face_locations=faceLoc)
 
-        faces = [Face(i, img.id, faceLoc[i], encodeImg[i]) for i in range(len(faceLoc))]
+        faces = [Face(i, img.id_, faceLoc[i], encodeImg[i]) for i in range(len(faceLoc))]
 
         img.faces = faces
         img.scanned = True

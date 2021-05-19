@@ -9,9 +9,9 @@ from face_recognition import load_image_file
 from PIL import Image as pImage
 
 class Album:
-    def __init__(self, id, name, face):
-        self.id = id
-        self.name = name
+    def __init__(self, id_, face, name=None):
+        self.id_ = id_
+        self.name = 'Album' + str(id_) if not name else name
         self.face = face
         self.matching_faces = []
 
@@ -29,7 +29,7 @@ class Album:
 class Face:
 
     def __init__(self, face_id, image_id, location, signature, recognized=False):
-        self.id = face_id
+        self.id_ = face_id
         self.image = image_id
         self.location = location
         self.signature = signature
@@ -40,7 +40,7 @@ class Face:
 class Image:
     # Image class encapsulates an image supported by lazy loading.  The image
     # is loaded using opencv.imread()
-    # img_id : Unique image id.
+    # img_id : Unique image id_.
     # location : location of the image.  This class is not responsible to
     # verify valid locations.
     # load : If True the image is instantly loaded otherwise it is loaded when
@@ -52,7 +52,7 @@ class Image:
 
 
     def __init__(self, img_id, location, load=False, scanned=False, faces=None):
-        self.id = img_id
+        self.id_ = img_id
         self.location = location
         self.__imgdata__ = load_image_file(location) if load else None
         self.loaded = load

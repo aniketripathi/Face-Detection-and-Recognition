@@ -8,11 +8,11 @@ import os
 import collections
 import imghdr
 
-# A variable used to generate unique image id
+# A variable used to generate unique image id_
 __imid__ = -1
 
 
-# Function to generate unique image id
+# Function to generate unique image id_
 def __gen_imageid__():
     global __imid__
     __imid__ += 1

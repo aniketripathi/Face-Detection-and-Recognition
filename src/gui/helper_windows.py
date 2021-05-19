@@ -11,11 +11,7 @@ from tkinter import filedialog as fd
 from PIL import Image, ImageTk
 
 class Albums_Dialog:
-    file_name = None
-    loaded_image = None
-    image_width = 480
-    image_height = 480
-    closed = False
+
 
     def __init__(self, parent):
         self.top = tk.Toplevel(parent, takefocus=False)
@@ -25,6 +21,12 @@ class Albums_Dialog:
         self.top.title('Select Album')
         self.top.grid_rowconfigure(0, weight=1)
         self.top.grid_columnconfigure(0, weight=1)
+
+        self.file_name = None
+        self.loaded_image = None
+        self.image_width = 480
+        self.image_height = 480
+        self.closed = False
 
         # Base frame for dialog
         self.base = tk.Frame(self.top, pady=2, padx=2)
@@ -97,9 +99,6 @@ class Albums_Dialog:
 
 class Loading_Bar:
 
-    text = 'Loading ...'
-    value = 0
-
     def __init__(self,parent,title, max):
         self.parent = parent
         self.root = tk.Toplevel(parent)
@@ -110,6 +109,8 @@ class Loading_Bar:
         self.root.grid_rowconfigure(0, weight=1)
         self.root.grid_columnconfigure(0, weight=1)
         self.root.update_idletasks()
+        self.value = 0
+        self.text = 'Loading ... '
 
         frame = tk.Frame(self.root, padx=3, pady=3, relief = tk.RIDGE)
         frame.grid(row=0, column=0, sticky='nsew')
