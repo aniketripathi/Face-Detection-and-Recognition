@@ -24,6 +24,8 @@ class Album:
                 match = face_distance([face.signature], self.face.signature) <= threshold
                 if match[0]:
                     self.matching_faces.append(face)
+                    face.album = self
+                    face.recognized = True
                     break
 
 class Face:
@@ -34,6 +36,7 @@ class Face:
         self.location = location
         self.signature = signature
         self.recognized = recognized
+        self.album = None
 
 
 
