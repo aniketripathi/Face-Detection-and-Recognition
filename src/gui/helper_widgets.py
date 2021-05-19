@@ -6,8 +6,7 @@ Created on 08-April-2021
 
 import tkinter as tk
 import tkinter.ttk as ttk
-from PIL import Image, ImageTk
-from src.engine.base import Album
+from PIL import ImageTk
 
 class ScrollableFrame(tk.LabelFrame):
 
@@ -29,21 +28,21 @@ class ScrollableFrame(tk.LabelFrame):
 
 class Thumbnail:
 
-   def __init__(self,id_, container, image, leftmouse_action=None, rightmouse_action=None):
-       self.id_ = id_
-       self.frame = tk.Frame(container, bg='black', highlightthickness=1, padx=3, pady=3, takefocus=1)
-       self.frame.bind("<Enter>", lambda event, f=self.frame: f.configure(bg='red'))
-       self.frame.bind("<Leave>", lambda event, f=self.frame: f.configure(bg='black'))
-       self.frame.grid_rowconfigure(0, weight = 1)
-       self.frame.grid_columnconfigure(0, weight=1)
-       self.thumb = ImageTk.PhotoImage(image.resize([128,128]))
-       self.label = tk.Label(self.frame, image = self.thumb)
-       if leftmouse_action :
-           self.label.bind("<Button-1>", lambda event : leftmouse_action(id_=self.id_))
-       if rightmouse_action :
-           self.label.bind("<Button-2>", lambda event : rightmouse_action(id_=self.id_))
-       self.label.grid(row=0, column=0, sticky = 'nsew')
-       self.frame.grid(padx=5, pady=5)
+    def __init__(self,id_, container, image, leftmouse_action=None, rightmouse_action=None):
+        self.id_ = id_
+        self.frame = tk.Frame(container, bg='black', highlightthickness=1, padx=3, pady=3, takefocus=1)
+        self.frame.bind("<Enter>", lambda event, f=self.frame: f.configure(bg='red'))
+        self.frame.bind("<Leave>", lambda event, f=self.frame: f.configure(bg='black'))
+        self.frame.grid_rowconfigure(0, weight = 1)
+        self.frame.grid_columnconfigure(0, weight=1)
+        self.thumb = ImageTk.PhotoImage(image.resize([128,128]))
+        self.label = tk.Label(self.frame, image = self.thumb)
+        if leftmouse_action :
+            self.label.bind("<Button-1>", lambda event : leftmouse_action(id_=self.id_))
+        if rightmouse_action :
+            self.label.bind("<Button-2>", lambda event : rightmouse_action(id_=self.id_))
+        self.label.grid(row=0, column=0, sticky = 'nsew')
+        self.frame.grid(padx=5, pady=5)
 
 
 class Album_Thumbnail(Thumbnail):

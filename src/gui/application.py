@@ -5,20 +5,18 @@ Created on 05-April-2021
 '''
 
 import tkinter as tk
-from tkinter.ttk import Progressbar as pb
-from PIL import Image as pImage, ImageTk
-from os import path as path
 from threading import Thread
+
+from src.engine.base import Image
+import src.engine.face_detection as fd
+from src.engine.base import Album
+import src.engine.image_manager as image_manager
 
 from .helper_widgets import ScrollableFrame
 from .helper_widgets import Thumbnail
 from .helper_widgets import Album_Thumbnail
 from .helper_windows import Albums_Dialog
 from .helper_windows import Loading_Bar
-from src.engine.base import Image
-import src.engine.face_detection as fd
-from src.engine.base import Album
-import src.engine.image_manager as image_manager
 
 
 class Application:
@@ -56,10 +54,12 @@ class Application:
         # self.toolbar container
         self.toolbar = tk.Frame(self.base, pady=5, relief=tk.GROOVE, bd=5, height=50)
         self.toolbar.grid(row=0, column=0, sticky='nsew')
-        self.add_album_button = tk.Button(self.toolbar, text='Add albums', command=lambda:self.scan_albumimage(self.root))
+        self.add_album_button = tk.Button(self.toolbar, text='Add albums',
+                                         command=lambda:self.scan_albumimage(self.root))
         self.add_album_button.grid(row=0, column=0, padx=5)
 
-        self.scan_button = tk.Button(self.toolbar, text='Scan', padx=5, command=lambda: self.scan_directory(self.root))
+        self.scan_button = tk.Button(self.toolbar, text='Scan', padx=5,
+                                    command=lambda: self.scan_directory(self.root))
         self.scan_button.grid(row=0, column=1, padx=5)
 
         # Main Pane - album pane and image pane
@@ -69,14 +69,16 @@ class Application:
         self.main_pane.grid_rowconfigure(0, weight=1)
 
         # Album container
-        self.album_pane = ScrollableFrame(self.main_pane, labelanchor='n', text='Album', padx=2, pady=2, takefocus=False, relief=tk.SUNKEN, bd=3, width=192)
+        self.album_pane = ScrollableFrame(self.main_pane, labelanchor='n', text='Album',
+                                         padx=2, pady=2, takefocus=False, relief=tk.SUNKEN, bd=3, width=192)
         self.album_pane.grid_propagate(0)
         self.album_pane.grid_columnconfigure(0, weight=1)
         self.album_pane.grid_rowconfigure(0, weight=1)
         self.album_pane.grid(row=0 , column=0, sticky='nsew')
 
         # Image container
-        self.image_pane = tk.LabelFrame(self.main_pane, labelanchor='n', text='Images', padx=2, pady=5, relief=tk.SUNKEN,bd=3)
+        self.image_pane = tk.LabelFrame(self.main_pane, labelanchor='n', text='Images',
+                                       padx=2, pady=5, relief=tk.SUNKEN,bd=3)
         self.image_pane.grid(row=0, column=1, sticky='nsew')
         self.image_pane.grid_columnconfigure(0, weight=1)
         self.image_pane.grid_rowconfigure(0, weight=1)
@@ -85,13 +87,12 @@ class Application:
         self.root.mainloop()
 
 
-
     def album_leftmouse(self, id_):
-        if self.albumimages_panes :
-          self.albumimages_panes[id_].tkraise()
+        if self.albumimages_panes:
+            self.albumimages_panes[id_].tkraise()
 
     def album_rightmouse(self, id_):
-        None
+        pass
 
     def scan_directory(self, parent):
         folder = tk.filedialog.askdirectory() + "/"
@@ -118,7 +119,7 @@ class Application:
                 scan_progress.face_recognition_complete = True
 
             loading_bar = Loading_Bar(self.root, "Loading Albums", len(unscanned_images) + len(self.albums))
-            albumthread = Thread(target = lambda : process())
+            albumthread = Thread(target = process)
 
             def update_var(scan_progress=sp):
                 if not scan_progress.face_detection_complete :
@@ -141,35 +142,36 @@ class Application:
             parent.wait_window(loading_bar.root)
 
             for album in self.albums:
-                sf = ScrollableFrame(self.image_pane)
-                sf.grid(row=0, column=0, sticky='nsew')
-                sf.grid_rowconfigure(0, weight=1)
-                sf.grid_columnconfigure(0, weight=1)
-                self.albumimages_panes.append(sf)
+                sframe = ScrollableFrame(self.image_pane)
+                sframe.grid(row=0, column=0, sticky='nsew')
+                sframe.grid_rowconfigure(0, weight=1)
+                sframe.grid_columnconfigure(0, weight=1)
+                self.albumimages_panes.append(sframe)
 
                 i = 0
                 for mface in album.matching_faces:
                     mimage = self.images[mface.image]
-                    thumb = Thumbnail(id_=mimage.id_,container=self.albumimages_panes[album.id_].sframe,image=mimage.getPILimage())
+                    thumb = Thumbnail(id_=mimage.id_,container=self.albumimages_panes[album.id_].sframe,
+                                      image=mimage.getPILimage())
                     thumb.frame.grid(row = i // 5, column = i % 5)
-                    sf.members.append(thumb)
+                    sframe.members.append(thumb)
                     i += 1
 
     def scan_albumimage(self,parent):
-        ad = Albums_Dialog(parent)
-        parent.wait_window(ad.top)
-        if(ad.closed):
-            file = ad.file_name
+        adialog = Albums_Dialog(parent)
+        parent.wait_window(adialog.top)
+        if(adialog.closed):
+            file = adialog.file_name
             if(file):
                 img = Image(0, file)
                 fd.scan([img],unload = True)
                 self.album_images.append(img)
                 for face in img.faces :
-                    l = face.location
+                    loc = face.location
                     # (top,right,bottom,left) -> (left,top,right,bottom)
-                    im = img.getPILimage().crop((l[3],l[0],l[1],l[2]))
+                    fimg = img.get_PIL_image().crop((loc[3],loc[0],loc[1],loc[2]))
                     album = Album(self.__albumcount__, face)
-                    album_thumb = Album_Thumbnail(self.__albumcount__, album, self.album_pane.sframe, im,
+                    album_thumb = Album_Thumbnail(self.__albumcount__, album, self.album_pane.sframe, fimg,
                                            leftmouse_action=self.album_leftmouse, rightmouse_action=self.album_rightmouse)
                     album_thumb.frame.grid(row=self.__albumcount__, column=0)
                     self.album_thumbnails.append(album_thumb)

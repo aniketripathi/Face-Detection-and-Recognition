@@ -20,9 +20,9 @@ class Album:
     # to match only 1 face in each image.
     def scan(self, images, threshold=0.6):
         for img in images:
-           for face in img.faces:
+            for face in img.faces:
                 match = face_distance([face.signature], self.face.signature) <= threshold
-                if(match[0]):
+                if match[0]:
                     self.matching_faces.append(face)
                     break
 
@@ -47,22 +47,22 @@ class Image:
     # the image is accessed.
     # scanned : True or False.  Whether the image is scanned for face
     # detection.  False by default.
-    # faces : List of faces detected in this image.  Only to be used if scanned
+    # faces : List of faces detected in this image.  Only to be used if
+    # scanned
     # = True.  None by default.
 
 
-    def __init__(self, img_id, location, load=False, scanned=False, faces=None):
+    def __init__(self, img_id, location, lazy=False, faces=None):
         self.id_ = img_id
         self.location = location
-        self.__imgdata__ = load_image_file(location) if load else None
-        self.loaded = load
-        self.scanned = scanned
-        self.faces = faces if scanned else None
+        self.__imgdata__ = load_image_file(location) if lazy else None
+        self.loaded = lazy
+        self.faces = faces
 
     # Use this method to access the image
     def imgdata(self):
 
-        if(not self.loaded):
+        if not self.loaded:
             # Load image from location if not loaded
             self.__imgdata__ = load_image_file(self.location)
             self.loaded = True
@@ -75,7 +75,8 @@ class Image:
         self.loaded = False
 
     # Returns PIL image of __imgdata__
-    def getPILimage(self, unload=True):
+    def get_PIL_image(self, unload=True):
         img = pImage.fromarray(self.imgdata().astype('uint8'), 'RGB')
-        self.__unload__()
+        if unload :
+            self.__unload__()
         return img

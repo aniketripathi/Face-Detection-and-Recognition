@@ -3,10 +3,12 @@ Created on 18-Jan-2021
 
 @author: Aniket Kumar Tripathi
 '''
-from .base import Image
+
 import os
 import collections
 import imghdr
+
+from .base import Image
 
 # A variable used to generate unique image id_
 __imid__ = -1
@@ -25,17 +27,17 @@ def __gen_imageid__():
 # load = If false image data is not loaded (by Default) and will be loaded when
 # used.
 # Returns - A list of images of type Image
-def load(dirs, load=False):
+def load(dirs, lazy=False):
     images = []
-    if(isinstance(dirs, str)):
+    if isinstance(dirs, str):
         dirs = [dirs]
 
-    if(isinstance(dirs, collections.Sequence)):
+    if isinstance(dirs, collections.Sequence):
         for path in dirs:
             for subpath in os.listdir(path):
                 file = ''.join([path, subpath])
                 if(os.path.isfile(file) and imghdr.what(file)):
-                    image = Image(__gen_imageid__(), file, load)
+                    image = Image(__gen_imageid__(), file, lazy)
                     images.append(image)
     return images
 
