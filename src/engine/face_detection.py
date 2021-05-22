@@ -56,4 +56,6 @@ def scan(images, unload=False):
 
 def __reset_count__():
     global count
+    global __current_image__
+    __current_image__ = None
     count = 0

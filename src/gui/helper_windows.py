@@ -81,7 +81,7 @@ class AlbumsDialog:
 		self.file_name = None
 
 	def __getfile__(self):
-		formats = [("PNG", "*.png"), ("BMP", "*.bmp"),("JPEG", "*.jpeg"), ("JPG", "*.jpg")]
+		formats = [("JPG", "*.jpg"), ("JPEG", "*.jpeg"), ("PNG", "*.png"), ("BMP", "*.bmp")]
 		self.file_name = fd.askopenfilename(parent=self.top, title='Select Image File', filetypes=formats)
 		self.__update_selectfilelabel__()
 

@@ -137,14 +137,16 @@ class Application:
             albumthread.start()
             loading_bar.start(update_var)
             parent.wait_window(loading_bar.root)
-            fd.__reset_count__
+            albumthread.join()
+            fd.__reset_count__()
             for album in self.albums:
                 i = 0
+                self.albumimages_panes[album.id_].members.clear()
                 for mface in album.matching_faces:
                     mimage = self.images[mface.image]
                     thumb = Thumbnail(id_=mimage.id_,container=self.albumimages_panes[album.id_].sframe,image=mimage.get_PIL_image(),
                                      leftmouse_action=lambda id_: ImageViewer(self.root,self.images,current_imageid=id_))
-                    thumb.frame.grid(row = i // 5, column = i % 5)
+                    thumb.frame.grid(row = i // 7, column = i % 7)
                     self.albumimages_panes[album.id_].members.append(thumb)
                     i += 1
 
